@@ -49,3 +49,7 @@ const myTeas = {
 const teaCopy = {
   ...teas,
 };
+
+// Add a custom method describe to the tea object that returns a description string.
+
+// Merge two objects representing diffrent teas into one

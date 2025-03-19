@@ -58,3 +58,5 @@ const reversedArray = [];
 for (let i = teas.length - 1; i >= 0; i--) {
   reversedArray.push(teas[i]);
 }
+let ad = 6;
+console.log(ad);

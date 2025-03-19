@@ -62,9 +62,12 @@ body {
 }
 
 .hero-content {
+  max-width: 60;
 }
 
 .hero-title {
+  color: white;
+  font-size: 60px;
 }
 
 .hero-description {
