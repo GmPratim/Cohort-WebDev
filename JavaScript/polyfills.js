@@ -14,10 +14,9 @@ if (!Array.prototype.myForEach) {
   };
 }
 
-const ret = arr.myForEach(function (value, index) {
-  console.log(index, value);
+const ret = arr.forEach(function (value, index) {
+  console.log(`Value at Index ${index} is ${value}`);
 });
-
 // map()
 // Signture .map => return new arrray => iterate throw each element,
 
@@ -54,3 +53,29 @@ const n3 = arr.filter((e) => e % 2 == 0);
 const n4 = arr.myFilter((e) => e % 2 == 0);
 console.log(n3);
 console.log(n4);
+
+///////////////////
+
+Object.prototype.myCall = function (obj3, ...numAge) {
+  if (typeof this !== "function") {
+    throw new Error(this + " is not a Function");
+  }
+  obj3.tempFn = this;
+  const result = obj3.tempFn(...numAge);
+  delete obj3.tempFn;
+  return result;
+};
+let obj1 = {
+  fName: "P",
+  sName: "G",
+  printName: function (age) {
+    return this.fName + " " + this.sName + " " + age;
+  },
+};
+
+let obj2 = {
+  fName: "Pratim",
+  sName: "Ghosh",
+};
+
+console.log(obj1.printName.myCall(obj2, 22));
