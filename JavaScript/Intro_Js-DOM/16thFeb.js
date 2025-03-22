@@ -25,7 +25,6 @@ console.log(result);
 // tiffine concept
 // Closure function
 
-/*
 function createCounter() {
   let count = 0;
   return function () {
@@ -33,4 +32,3 @@ function createCounter() {
     return count;
   };
 }
-
