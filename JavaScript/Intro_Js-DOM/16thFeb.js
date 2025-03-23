@@ -45,3 +45,21 @@ console.log("pp"
 })()
 
 */
+
+/* **    Closure **function
+
+
+```
+function createCounter() {
+  let count = 0;
+  return function () {
+    count++;
+    return count;
+  };
+}
+
+const counter = craeyeCounter()
+console.log(counter())
+```
+
+*/
