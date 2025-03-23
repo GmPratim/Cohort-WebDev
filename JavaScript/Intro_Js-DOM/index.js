@@ -1,7 +1,16 @@
-function changeBackgroundColor() {
-  document.body.style.backgroundColor = "black";
+function changeBackground(color) {
+  document.body.style.backgroundColor = color;
 }
 
-function whitekaro() {
-  document.body.style.backgroundColor = "white";
-}
+const themeButton = document.getElementById("theme-button");
+
+themeButton.addEventListener("click", () => {
+  const currentColor = document.body.style.backgroundColor;
+  if (!currentColor || currentColor == "white") {
+    changeBackground("black");
+    themeButton.innerText = "Light Mode";
+  } else {
+    changeBackground("white");
+    themeButton.innerText = "Dark Mode";
+  }
+});
