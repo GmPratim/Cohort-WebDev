@@ -10,7 +10,8 @@ themeButton.addEventListener("click", () => {
     changeBackground("black");
     themeButton.innerText = "Light Mode";
   } else {
-    changeBackground("white");
+    changeBackgroundColor("white");
+
     themeButton.innerText = "Dark Mode";
   }
 });
