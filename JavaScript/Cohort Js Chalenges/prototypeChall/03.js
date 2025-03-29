@@ -24,4 +24,4 @@ const myCounter = new Counter();
 myCounter.increment();
 console.log(myCounter.count); // Output: 1
 myCounter.decrement();
-console.log(myCounter.count); // Output:
+console.log(myCounter.count); // Output: 0
