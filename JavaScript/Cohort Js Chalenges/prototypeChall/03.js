@@ -16,7 +16,7 @@ function Counter() {
 Counter.prototype.increment = function () {
   this.count++;
 };
-// Adding decrement method to the prototype
+// Adding decrement method to the prototyp
 Counter.prototype.decrement = function () {
   this.count--;
 };
