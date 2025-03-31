@@ -8,5 +8,5 @@ function invertedMountain(n) {
   }
   return di;
 }
-let t = invertedMountain(5);
+let t = invertedMountain(6);
 console.log(t);
