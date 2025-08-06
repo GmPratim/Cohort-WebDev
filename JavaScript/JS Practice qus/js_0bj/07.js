@@ -21,4 +21,12 @@ const bj = {
     age: 23
 }
 
-console.log(objectToArray(bj));
+// console.log(objectToArray(bj));
+
+
+function greet (name) {
+    return `Hello $(name)`
+}
+
+console.log(greet());
+
