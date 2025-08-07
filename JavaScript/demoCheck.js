@@ -17,6 +17,8 @@ greet.describe()
 // console.log(greet.lname);
 
 
+
+// first class function
 function applyOp(a, b, operatiom) {
     return operatiom (a,b)
 }
