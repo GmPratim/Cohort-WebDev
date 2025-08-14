@@ -8,10 +8,13 @@
 <body>
     <ul id="items">
     </ul>
+     <p id="error-message" style="color: red; font-weight: bold;"></p>
     
     <script>
 
         const items = document.getElementById("items")
+      const errorMessage = document.getElementById("error-message");
+
        
 
         fetch('https://api.freeapi.app/api/v1/public/randomproducts')
@@ -26,8 +29,14 @@
                 })
             }) 
         })
-        .catch((err) => {})
-        .finally((err) => {})
+        .catch((err) => {
+             errorMessage.textContent = "❌ Failed to load products. Please try again later.";
+
+            console.error("Error fetching products:", err);
+        })
+        .finally((err) => {
+             console.log("Fetch attempt finished.");
+        })
 
 
 
