@@ -8,7 +8,7 @@ const obj = {
 
 console.log('hi');
 
-setTimeout(obj.greet.bind(obj), 5 * 1000)   // we use bind because giving object context, for setTimeout its not wrking without bind
+setTimeout(obj.greet.bind(obj), 5 * 1000)   // we use bind because giving object context, for setTimeout its not wrking without bind 
 
 console.log('hi');
 
