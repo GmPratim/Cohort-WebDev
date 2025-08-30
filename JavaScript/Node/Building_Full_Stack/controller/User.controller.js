@@ -59,13 +59,15 @@ const registerUser = async (req, res) => {
       },
     });
 
+    const verificationLink = `${process.env.BASE_URL}/api/v1/users/verify/${token}`;
+
     const mailOption = {
       from: process.env.MAILTRAP_SENDEREMAIL,
       to: user.email,
       subject: "Verify your email", // Subject line
-      text: `Please click on the following link:
-      ${process.env.BASE_URL}/api/v1/users/verify/${token}
-      `,
+      text: `Please click on the following link:  ${verificationLink}`,
+      html: `<p>Please click the link below to verify your email:</p>
+         <p><a href="${verificationLink}" target="_blank">${verificationLink}</a></p>`, // clickable link
     };
 
     await transporter.sendMail(mailOption);
@@ -76,41 +78,60 @@ const registerUser = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
-      message: "User not registered ",
+      message: "User not registered catch",
       error,
       success: false,
     });
   }
 };
 
+// verify user
+
 const verifyUser = async (req, res) => {
-  // get token from url
-  // validate
-  // fimd user based on token
-  // if not
+  //get token from url
+  //validate
+  // find user based on token
+  //if not
   // set isVerified field to true
   // remove verification token
   // save
-  // return response
+  //return response
 
   const { token } = req.params;
+  console.log(token);
   if (!token) {
     return res.status(400).json({
       message: "Invalid token",
     });
   }
-  const user = await User.findOne({ verificationToken: token });
+  try {
+    console.log("verification started");
 
-  if (!user) {
-    return res.status(400).json({
-      message: "Invalid token",
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid token",
+      });
+    }
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    res.status(200).json({
+      message: "User verified successfully",
+      success: true,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "User not verified",
+      error,
+      success: false,
     });
   }
-
-  user.isVerified = true;
-  user.verificationToken = undefined;
-  await user.save();
 };
+
+// login
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -139,14 +160,18 @@ const login = async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, "shhhhh", {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "24h",
+      }
+    ); // jwt.sign(payload, secretOrPrivateKey, [options, callback])
 
     const cookieOptions = {
-      httpOnly: true,
+      httpOnly: true, // normal user is cookie ke sath cher char nhi kar sakta
       secure: true,
-      maxAge: 24 * 60 * 600 * 1000,
+      maxAge: 24 * 60 * 60 * 1000, // expire time for 24h
     };
 
     res.cookie("token", token, cookieOptions);
@@ -159,9 +184,90 @@ const login = async (req, res) => {
         id: user._id,
         name: user.name,
         role: user.role,
+        // password: user.password,
       },
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "User not registered ",
+      error,
+      success: false,
+    });
+  }
+};
+
+const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password"); // "-password" means password mat do
+    console.log("User de:", user);
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Usewr not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
     });
   } catch (error) {}
 };
 
-export { registerUser, verifyUser, login };
+// logout user
+
+const logoutUser = async (req, res) => {
+  try {
+    res.cookie("token", "", {
+      // expiresIn: new Date(0) -- this for if we expires the cookie
+      // we can pass options
+    });
+
+    console.log("Logout");
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully ",
+    });
+  } catch (error) {}
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    // get email
+    // find user based on email
+    //  reset token + reset expiry => Date.now() + 10 * 60 * 1000 => user.save()
+    // send mail => design url
+  } catch (error) {}
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    // collect token from params
+    // password from req.body
+    const { token } = req.params;
+    const { password } = req.body;
+
+    try {
+      const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() },
+      });
+
+      // set password in user
+      // resetToken, restExpiru => reset
+      // save
+    } catch (error) {}
+  } catch (error) {}
+};
+
+export {
+  registerUser,
+  verifyUser,
+  login,
+  getMe,
+  logoutUser,
+  forgotPassword,
+  resetPassword,
+};
