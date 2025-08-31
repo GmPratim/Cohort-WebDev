@@ -3,6 +3,8 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+// import { use } from "react";
+// import { use } from "react";
 
 const registerUser = async (req, res) => {
   // get data
@@ -78,7 +80,7 @@ const registerUser = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
-      message: "User not registered catch",
+      message: "User not registered",
       error,
       success: false,
     });
@@ -196,6 +198,8 @@ const login = async (req, res) => {
   }
 };
 
+// profile
+
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password"); // "-password" means password mat do
@@ -204,7 +208,7 @@ const getMe = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Usewr not found",
+        message: "User not found",
       });
     }
 
@@ -234,32 +238,108 @@ const logoutUser = async (req, res) => {
 };
 
 const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "Email required",
+    });
+  }
   try {
     // get email
     // find user based on email
-    //  reset token + reset expiry => Date.now() + 10 * 60 * 1000 => user.save()
+    // set reset token + reset expiry => Date.now() + 10 * 60 * 1000 => user.save()
     // send mail => design url
-  } catch (error) {}
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid email",
+      });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    // send mail
+    const transporter = nodemailer.createTransport({
+      host: process.env.MAILTRAP_HOST,
+      port: process.env.MAILTRAP_PORT,
+      secure: false, // true for port 465, false for other ports
+      auth: {
+        user: process.env.MAILTRAP_USERNAME,
+        pass: process.env.MAILTRAP_PASSWORD,
+      },
+    });
+
+    const forgotVerificationLik = `${process.env.BASE_URL}/api/v1/users/reset/${token}`;
+
+    const mailOption = {
+      from: process.env.MAILTRAP_SENDEREMAIL,
+      to: user.email,
+      subject: "Forgot your password", // Subject line
+      text: `Please click on the following link:  ${forgotVerificationLik}`,
+      html: `<p>Please click the link below to reset your password:</p>
+         <p><a href="${forgotVerificationLik}" target="_blank">${forgotVerificationLik}</a></p>`, // clickable link
+    };
+
+    await transporter.sendMail(mailOption);
+
+    res.status(201).json({
+      message: "Check your email",
+      success: true,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Wrong info",
+      error,
+      success: false,
+    });
+  }
 };
 
 const resetPassword = async (req, res) => {
+  // collect token from params
+  // password from req.body
+  const { token } = req.params;
+  const { password } = req.body;
+
   try {
-    // collect token from params
-    // password from req.body
-    const { token } = req.params;
-    const { password } = req.body;
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
 
-    try {
-      const user = await User.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: Date.now() },
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid or expired reset token",
+        success: false,
       });
+    }
 
-      // set password in user
-      // resetToken, restExpiru => reset
-      // save
-    } catch (error) {}
-  } catch (error) {}
+    // set password in user
+    user.password = password;
+    // resetToken, restExpiru => reset
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    // save
+    await user.save();
+
+    res.status(201).json({
+      message: "password reset sucessfull",
+      success: true,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Something went wrong",
+      error,
+      success: false,
+    });
+  }
 };
 
 export {
